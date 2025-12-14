@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Counter-Strike 1.6 | Official Distribution</title>
+    <style>
+        /* =========================================
+           Global Styles & Reset
+           ========================================= */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            /* Холодный белый градиент */
+            background: linear-gradient(135deg, #ffffff 0%, #f0f4f8 50%, #dfe6e9 100%);
+            color: #2d3436;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* =========================================
+           Snow Animation (Background)
+           ========================================= */
+        .snowflake {
+            position: fixed;
+            top: -10px;
+            color: #b2bec3;
+            font-size: 1em;
+            font-family: Arial, sans-serif;
+            user-select: none;
+            z-index: -1;
+            cursor: default;
+            animation-name: snowflakes-fall, snowflakes-shake;
+            animation-duration: 12s, 4s;
+            animation-timing-function: linear, ease-in-out;
+            animation-iteration-count: infinite, infinite;
+            opacity: 0.6;
+        }
+
+        @keyframes snowflakes-fall {
+            0% { top: -10%; }
+            100% { top: 100%; }
+        }
+
+        @keyframes snowflakes-shake {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(60px); }
+        }
+
+        /* Генерация снежинок */
+        .snowflake:nth-of-type(1) { left: 5%; animation-delay: 0s, 0s; }
+        .snowflake:nth-of-type(2) { left: 15%; animation-delay: 2s, 1s; }
+        .snowflake:nth-of-type(3) { left: 25%; animation-delay: 4s, 0.5s; }
+        .snowflake:nth-of-type(4) { left: 35%; animation-delay: 1s, 2s; }
+        .snowflake:nth-of-type(5) { left: 45%; animation-delay: 3s, 2s; }
+        .snowflake:nth-of-type(6) { left: 55%; animation-delay: 5s, 3s; }
+        .snowflake:nth-of-type(7) { left: 65%; animation-delay: 2s, 2s; }
+        .snowflake:nth-of-type(8) { left: 75%; animation-delay: 4s, 1s; }
+        .snowflake:nth-of-type(9) { left: 85%; animation-delay: 1s, 0s; }
+        .snowflake:nth-of-type(10) { left: 95%; animation-delay: 3s, 1.5s; }
+
+        /* =========================================
+           White Glass Container
+           ========================================= */
+        .glass-container {
+            max-width: 1100px;
+            margin: 50px auto;
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
+            border: 1px solid rgba(255, 255, 255, 1);
+            border-radius: 24px;
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.05),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+            overflow: hidden;
+        }
+
+        /* =========================================
+           UI Elements & Typography
+           ========================================= */
+        h1, h2, h3 {
+            color: #2d3436;
+            margin-bottom: 0.8rem;
+            font-weight: 700;
+        }
+
+        p {
+            line-height: 1.6;
+            color: #636e72;
+            margin-bottom: 1.5rem;
+        }
+
+        .text-accent {
+            color: #e17055; /* Красный акцент */
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: #e17055;
+            color: #fff;
+            padding: 16px 40px;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 15px rgba(225, 112, 85, 0.3);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .btn-primary:hover {
+            background: #d63031;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(225, 112, 85, 0.4);
+        }
+
+        .btn-vt {
+            margin-top: 15px;
+            font-size: 0.9rem;
+            color: #00b894; /* Зеленый цвет безопасности */
+            background: rgba(0, 184, 148, 0.1);
+            padding: 10px 20px;
+            border: 1px solid rgba(0, 184, 148, 0.2);
+            gap: 8px;
+        }
+
+        .btn-vt:hover {
+            background: rgba(0, 184, 148, 0.2);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: #2d3436;
+            border: 2px solid #dfe6e9;
+            padding: 10px 20px;
+            font-size: 0.9rem;
+            margin-top: 15px;
+        }
+
+        .btn-outline:hover {
+            border-color: #b2bec3;
+            background: #f1f2f6;
+        }
+
+        /* =========================================
+           Header (Убрана нерабочая навигация)
+           ========================================= */
+        header {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            padding: 25px 50px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+            background: rgba(255,255,255,0.5);
+        }
+
+        .brand {
+            font-size: 1.4rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* =========================================
+           Hero Section
+           ========================================= */
+        .hero {
+            padding: 80px 40px;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            letter-spacing: -1px;
+            margin-bottom: 20px;
+        }
+
+        .hero-desc {
+            font-size: 1.15rem;
+            max-width: 600px;
+            margin: 0 auto 30px auto;
+            color: #636e72;
+        }
+
+        .download-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* =========================================
+           Grid Layouts
+           ========================================= */
+        .section {
+            padding: 60px 50px;
+            border-top: 1px solid rgba(0,0,0,0.04);
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        /* Карточки */
+        .feature-card {
+            background: rgba(255,255,255,0.6);
+            padding: 30px;
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.8);
+            transition: transform 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255,255,255,0.9);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+        }
+
+        .icon-box {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            opacity: 0.8;
+        }
+
+        /* Ссылки аддонов */
+        .addon-card {
+            text-align: center;
+            align-items: center;
+        }
+        
+        .addon-card h3 {
+            font-size: 1.1rem;
+        }
+        
+        .addon-card p {
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+
+        /* =========================================
+           Gallery
+           ========================================= */
+        .gallery-wrap {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+        }
+
+        .gallery-img {
+            border-radius: 12px;
+            overflow: hidden;
+            aspect-ratio: 16/9;
+            background: #eee;
+            position: relative;
+        }
+
+        .gallery-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: grayscale(10%);
+            transition: filter 0.3s;
+        }
+
+        .gallery-img:hover img {
+            filter: grayscale(0%);
+        }
+
+        /* =========================================
+           Footer
+           ========================================= */
+        footer {
+            text-align: center;
+            padding: 30px;
+            font-size: 0.85rem;
+            color: #999;
+            border-top: 1px solid rgba(0,0,0,0.04);
+            background: rgba(255,255,255,0.4);
+        }
+        
+        .footer-links a {
+            color: #636e72;
+            text-decoration: none;
+            margin: 0 15px;
+            transition: color 0.2s;
+        }
+        
+        .footer-links a:hover {
+            color: #e17055;
+        }
+        
+        .footer-links {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px dashed rgba(0,0,0,0.05);
+        }
+
+        /* Mobile */
+        @media (max-width: 768px) {
+            header { flex-direction: column; gap: 20px; padding: 20px; }
+            .hero h1 { font-size: 2.2rem; }
+            .section { padding: 40px 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="snowflakes" aria-hidden="true">
+        <div class="snowflake">❅</div>
+        <div class="snowflake">❄</div>
+        <div class="snowflake">❅</div>
+        <div class="snowflake">❆</div>
+        <div class="snowflake">❄</div>
+        <div class="snowflake">❅</div>
+        <div class="snowflake">❄</div>
+        <div class="snowflake">❆</div>
+        <div class="snowflake">❅</div>
+        <div class="snowflake">❄</div>
+    </div>
+
+    <div class="glass-container">
+
+        <header>
+            <div class="brand">
+                <span style="color: #e17055;">🎄</span> Counter-Strike 1.6 <span style="font-weight: 400; color: #636e72; margin-left:5px;">Original Distribution</span>
+            </div>
+        </header>
+
+        <section class="hero">
+            <h1>Counter-Strike 1.6 <br><span class="text-accent">Официальный дистрибутив</span></h1>
+            <p class="hero-desc">
+                Официальный установочный пакет. Оригинальные файлы игры, стандартная конфигурация. 
+                Версия полностью соответствует лицензионному клиенту Steam.
+            </p>
+            
+            <div class="download-group">
+                <a href="https://all-cs.ru/sborki/CS16_Setup.exe" class="btn btn-primary">
+                    Скачать установщик (.exe)
+                </a>
+
+                <a href="https://www.virustotal.com/gui/file/7774111170de857ed2df3b8ba4252410b86629f60faa90864ead912629235ecf?nocache=1" target="_blank" class="btn btn-vt">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                    Проверка безопасности VirusTotal
+                </a>
+            </div>
+        </section>
+
+        <section class="section">
+            <h3 style="text-align: center; margin-bottom: 40px;">Основные особенности</h3>
+            <div class="grid-3">
+                <div class="feature-card">
+                    <div class="icon-box">📀</div>
+                    <h3>Базовые ресурсы</h3>
+                    <p>Дистрибутив содержит только оригинальные, немодифицированные модели и звуковые файлы.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon-box">⚙️</div>
+                    <h3>Базовая конфигурация</h3>
+                    <p>Используется стандартный набор настроек (CFG). Все параметры устанавливаются игроком самостоятельно.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon-box">🔒</div>
+                    <h3>Стабильность и безопасность</h3>
+                    <p>Установщик не содержит вредоносного ПО и обеспечивает стабильную работу клиента.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h3 style="text-align: center; margin-bottom: 10px;">Дополнительные модификации</h3>
+            <p style="text-align: center; margin-bottom: 40px; font-size: 0.9rem;">
+                Эти файлы предоставляются отдельно и устанавливаются по желанию
+            </p>
+            
+            <div class="grid-3">
+                <div class="feature-card addon-card">
+                    <div class="icon-box">🔫</div>
+                    <h3>Deagle Blaze Skin</h3>
+                    <p>Модель высокого разрешения</p>
+                    <a href="https://github.com/skinsfarmy-max/loll/raw/refs/heads/main/deagle-blaze_0.zip" class="btn btn-outline">Скачать ZIP</a>
+                </div>
+
+                <div class="feature-card addon-card">
+                    <div class="icon-box">❄️</div>
+                    <h3>Map: Mirage Winter</h3>
+                    <p>Зимняя вариация карты</p>
+                    <a href="https://github.com/skinsfarmy-max/loll/raw/refs/heads/main/css_miragewinter_go.zip" class="btn btn-outline">Скачать ZIP</a>
+                </div>
+
+                <div class="feature-card addon-card">
+                    <div class="icon-box">🧤</div>
+                    <h3>Sport Gloves Pack</h3>
+                    <p>Набор текстур (Batureis)</p>
+                    <a href="https://dl.all-cs.ru/cs16/weapon-skins/packs/batureis-sport-gloves-pack.zip" class="btn btn-outline">Скачать ZIP</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h3 style="margin-bottom: 30px;">Игровые скриншоты</h3>
+            <div class="gallery-wrap">
+                <div class="gallery-img">
+                    <img src="https://picsum.photos/id/16/400/225" alt="Gameplay 1">
+                </div>
+                <div class="gallery-img">
+                    <img src="https://picsum.photos/id/15/400/225" alt="Gameplay 2">
+                </div>
+                <div class="gallery-img">
+                    <img src="https://picsum.photos/id/12/400/225" alt="Gameplay 3">
+                </div>
+                <div class="gallery-img">
+                    <img src="https://picsum.photos/id/28/400/225" alt="Gameplay 4">
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <p>&copy; 2024 Counter-Strike 1.6 Distribution.</p>
+            <p>Права на игру принадлежат Valve Corporation.</p>
+            <div class="footer-links">
+                <a href="https://t.me/Heu3BecmHbIu" target="_blank">Telegram Канал</a>
+                |
+                <a href="https://all-cs.ru/" target="_blank">Сайт разработчика установщика</a>
+            </div>
+        </footer>
+
+    </div>
+
+</body>
+</html>
